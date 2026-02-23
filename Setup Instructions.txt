@@ -1,0 +1,226 @@
+================================================================================
+  WinAppDriver Automation Project - Setup Instructions for New Computer
+================================================================================
+
+PREREQUISITES
+================================================================================
+
+1. Install .NET SDK (version 10.0 or compatible)
+   - Download from: https://dotnet.microsoft.com/download
+   - Run the installer
+   - Verify installation by opening terminal and running:
+     dotnet --version
+
+2. Install WinAppDriver
+   - Download from: https://github.com/Microsoft/WinAppDriver/releases
+   - Download and run: WindowsApplicationDriver.msi
+   - Default installation path: C:\Program Files (x86)\Windows Application Driver\
+   - Leave default settings during installation
+
+3. Enable Developer Mode on Windows
+   - Open Windows Settings
+   - Go to: Update & Security → For developers
+   - Select "Developer mode"
+   - Confirm when prompted
+
+4. Ensure Required Applications are Installed
+   - Windows Calculator (built-in)
+   - Notepad (built-in)
+   - Sage 50 Accounting (if running Sage50Tests)
+
+
+PROJECT SETUP STEPS
+================================================================================
+
+Step 1: Copy Project Files to New Computer
+-------------------------------------------
+Copy the following files and folders to the new computer:
+  - CalculatorTests.cs
+  - NotepadTests.cs
+  - Sage50Tests.cs
+  - WinAppDriverTests.csproj
+  - README.md
+
+DO NOT copy these folders (they will be auto-generated):
+  - bin/
+  - obj/
+  - TestResults/
+
+You can copy the entire project folder or just the essential files listed above.
+
+
+Step 2: Open Terminal in Project Directory
+-------------------------------------------
+- Open PowerShell or Command Prompt
+- Navigate to the project folder:
+  cd "C:\path\to\your\project\folder"
+
+
+Step 3: Restore NuGet Packages
+-------------------------------------------
+Run the following command to download all dependencies:
+  dotnet restore
+
+This will download:
+  - Appium.WebDriver (v8.0.1)
+  - MSTest (v4.0.1)
+  - Other required packages
+
+Note: You may see warnings about version resolution - this is normal.
+
+
+Step 4: Build the Project
+-------------------------------------------
+Run the following command to compile the project:
+  dotnet build
+
+Expected output: "Build succeeded"
+
+
+RUNNING THE TESTS
+================================================================================
+
+Step 1: Start WinAppDriver Server
+-------------------------------------------
+Open a NEW terminal window (keep it separate) and run:
+  & "C:\Program Files (x86)\Windows Application Driver\WinAppDriver.exe"
+
+Expected output:
+  Windows Application Driver listening for requests at: http://127.0.0.1:4723/
+
+IMPORTANT: Keep this terminal window open while running tests!
+
+
+Step 2: Run the Tests
+-------------------------------------------
+In a SEPARATE terminal window (in the project directory), run tests:
+
+Option A - Run ALL tests:
+  dotnet test
+
+Option B - Run specific test class:
+  dotnet test --filter ClassName=WinAppDriverTests.CalculatorTests
+  dotnet test --filter ClassName=WinAppDriverTests.NotepadTests
+  dotnet test --filter ClassName=WinAppDriverTests.Sage50Tests
+
+Option C - Run specific test method:
+  dotnet test --filter Name=TestAddition
+  dotnet test --filter Name=TestTypeText
+
+Option D - Run with detailed output:
+  dotnet test --logger "console;verbosity=detailed"
+
+
+TEST DESCRIPTIONS
+================================================================================
+
+CalculatorTests.cs
+-------------------------------------------
+Tests for Windows Calculator application:
+  - TestAddition() - Tests 5 + 7 = 12
+  - TestSubtraction() - Tests 9 - 3 = 6
+  - TestMultiplication() - Tests 8 × 4 = 32
+
+NotepadTests.cs
+-------------------------------------------
+Tests for Notepad application:
+  - TestTypeText() - Types text into Notepad
+  - TestMenuNavigation() - Navigates File menu
+  - TestClearText() - Clears text using keyboard shortcuts
+
+Sage50Tests.cs
+-------------------------------------------
+Tests for Sage 50 Accounting software
+  - Requires Sage 50 to be installed on the computer
+
+
+TROUBLESHOOTING
+================================================================================
+
+Problem: "dotnet: command not found" or "dotnet is not recognized"
+Solution: .NET SDK not installed or not in PATH. Reinstall .NET SDK and restart terminal.
+
+Problem: "Failed to create session" or "Connection refused"
+Solution: WinAppDriver is not running. Start WinAppDriver.exe first.
+
+Problem: "Developer Mode is not enabled"
+Solution: Enable Developer Mode in Windows Settings (see Prerequisites #3).
+
+Problem: Tests fail because application not found
+Solution: Ensure the application (Calculator, Notepad, Sage 50) is installed.
+
+Problem: NuGet package restore warnings
+Solution: These are usually harmless. The build uses compatible package versions.
+
+Problem: Application doesn't close after test
+Solution: WinAppDriver may have crashed. Restart WinAppDriver.exe and run tests again.
+
+
+PROJECT STRUCTURE
+================================================================================
+
+WinAppDriver Automation/
+├── CalculatorTests.cs          # Calculator automation tests
+├── NotepadTests.cs             # Notepad automation tests
+├── Sage50Tests.cs              # Sage 50 automation tests
+├── WinAppDriverTests.csproj    # Project configuration file
+├── README.md                   # Project documentation
+├── bin/                        # Compiled binaries (auto-generated)
+├── obj/                        # Build artifacts (auto-generated)
+└── TestResults/                # Test execution results (auto-generated)
+
+
+QUICK START CHECKLIST
+================================================================================
+
+□ Install .NET SDK
+□ Install WinAppDriver
+□ Enable Developer Mode
+□ Copy project files to new computer
+□ Open terminal in project folder
+□ Run: dotnet restore
+□ Run: dotnet build
+□ Start WinAppDriver in separate terminal
+□ Run: dotnet test
+□ Verify tests pass
+
+
+IMPORTANT NOTES
+================================================================================
+
+1. WinAppDriver MUST be running before executing any tests
+   - It listens on: http://127.0.0.1:4723
+   - Keep the WinAppDriver terminal window open during testing
+
+2. Only works on Windows OS (Windows 10/11)
+   - WinAppDriver is Windows-specific
+
+3. Applications must be closed before running tests
+   - Tests will launch applications automatically
+
+4. Some tests may require specific application versions
+   - Check test code for compatibility requirements
+
+5. Administrator privileges may be required
+   - For Developer Mode and WinAppDriver installation
+
+
+ADDITIONAL RESOURCES
+================================================================================
+
+WinAppDriver Documentation:
+  https://github.com/Microsoft/WinAppDriver
+
+Appium WebDriver Documentation:
+  https://appium.io/docs/
+
+.NET Testing Documentation:
+  https://docs.microsoft.com/en-us/dotnet/core/testing/
+
+MSTest Framework:
+  https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-mstest
+
+
+================================================================================
+Last Updated: December 8, 2025
+================================================================================

@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinAppDriverTests", "WinAppDriverTests.csproj", "{CFD4A523-3496-2935-9FA7-AAC1A1C7C3A7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CFD4A523-3496-2935-9FA7-AAC1A1C7C3A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFD4A523-3496-2935-9FA7-AAC1A1C7C3A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFD4A523-3496-2935-9FA7-AAC1A1C7C3A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFD4A523-3496-2935-9FA7-AAC1A1C7C3A7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2303E2E1-342B-44BC-ABB3-23236E52C8ED}
+	EndGlobalSection
+EndGlobal
