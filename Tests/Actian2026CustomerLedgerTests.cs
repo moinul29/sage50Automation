@@ -62,7 +62,8 @@ namespace Sage50Automation.Tests
 
                 // Step 4: Explore all filters and options
                 var viewerPage = CreateViewerPage(report.ReportWindowTitle);
-                viewerPage.ExploreAllFiltersAndOptions();
+                var modifyPage = viewerPage.OpenModifyReportDialog();
+                modifyPage.ExploreAllFiltersAndOptions(viewerPage.OpenModifyReportDialog);
 
                 // TODO: Uncomment when ready to export
                 // // Step 5: Export to Excel

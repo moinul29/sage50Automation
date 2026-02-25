@@ -14,7 +14,8 @@ namespace Sage50Automation.Pages
     /// 
     /// Usage:
     ///   var viewerPage = new ReportViewerPage(app, automation, logger, "Customer Ledgers");
-    ///   viewerPage.ExploreAllFiltersAndOptions();   // or
+    ///   var modifyPage = viewerPage.OpenModifyReportDialog();
+    ///   modifyPage.ExploreAllFiltersAndOptions(viewerPage.OpenModifyReportDialog);
     ///   viewerPage.ExportToExcel();
     /// </summary>
     public class ReportViewerPage : BasePage
@@ -101,141 +102,6 @@ namespace Sage50Automation.Pages
             // Wait for export to complete
             WaitForExportProgress();
             Log.Info("Excel export completed");
-        }
-
-        /// <summary>
-        /// Explore ALL filters and their options dynamically.
-        /// 
-        /// For each filter:
-        ///   1. Discover available options (All, Range, One or More)
-        ///   2. Select each option and fill in values
-        ///   3. Click OK to apply
-        ///   4. Re-open and clear for next combination
-        /// </summary>
-        public void ExploreAllFiltersAndOptions()
-        {
-            Log.Info("=== Starting Options and Filters exploration ===");
-
-            var modifyPage = OpenModifyReportDialog();
-
-            // STEP 1: Discover all filters
-            Log.Info("\n=== STEP 1: Discovering all filters from UI ===");
-            var allFilters = modifyPage.DiscoverFilters();
-            Log.Info($"Total filters discovered: {allFilters.Count}");
-
-            Log.Info("\n--- Discovered Filters List ---");
-            for (int i = 0; i < allFilters.Count; i++)
-                Log.Info($"  Filter [{i + 1}]: {allFilters[i].Name}");
-
-            // STEP 2: Discover options for each filter
-            Log.Info("\n=== STEP 2: Discovering options for each filter ===");
-            var filterOptionsMap = new Dictionary<string, List<OptionInfo>>();
-
-            foreach (var filter in allFilters)
-            {
-                Log.Info($"\n--- Discovering options for filter: {filter.Name} ---");
-                filter.Element.Click();
-                Thread.Sleep(TestConfig.ShortWaitMs);
-
-                var options = modifyPage.DiscoverFilterOptions(filter);
-                filterOptionsMap[filter.Name] = options;
-
-                Log.Info($"  Options discovered for '{filter.Name}':");
-                foreach (var opt in options)
-                    Log.Info($"    - {opt.Name} (Type: {opt.OptionType})");
-            }
-
-            // STEP 3: Test all filter-option combinations
-            Log.Info("\n=== STEP 3: Testing all filters, options and values ===");
-
-            int filterIndex = 0;
-            foreach (var filter in allFilters)
-            {
-                filterIndex++;
-                Log.Info($"\n========================================");
-                Log.Info($"FILTER [{filterIndex}/{allFilters.Count}]: {filter.Name}");
-                Log.Info($"========================================");
-
-                var options = filterOptionsMap[filter.Name];
-                int optionIndex = 0;
-
-                foreach (var option in options)
-                {
-                    optionIndex++;
-                    Log.Info($"\n  --- Option [{optionIndex}/{options.Count}]: {option.Name} ---");
-
-                    // A: Click on filter to show its options
-                    Log.Info($"      Clicking on filter '{filter.Name}' to show options...");
-                    var freshFilter = modifyPage.RefindFilter(filter.Name);
-                    if (freshFilter != null)
-                    {
-                        freshFilter.Click();
-                        Thread.Sleep(TestConfig.ShortWaitMs);
-                    }
-                    else
-                    {
-                        Log.Info($"      WARNING: Could not find filter '{filter.Name}', trying stored element...");
-                        try { filter.Element.Click(); Thread.Sleep(TestConfig.ShortWaitMs); } catch { }
-                    }
-
-                    // B: Select the option (radio button)
-                    modifyPage.SelectOption(option);
-                    Thread.Sleep(TestConfig.ShortWaitMs);
-
-                    // C: Handle value selection based on option type
-                    switch (option.OptionType)
-                    {
-                        case OptionType.All:
-                            Log.Info($"      'All' option selected - no additional values needed");
-                            break;
-                        case OptionType.Range:
-                            modifyPage.SelectRangeValues();
-                            break;
-                        case OptionType.OneOrMore:
-                            modifyPage.SelectMultipleValues(TestConfig.MaxFilterValuesToSelect);
-                            break;
-                    }
-
-                    // D: Click OK to apply
-                    modifyPage.ClickOK();
-                    Thread.Sleep(1000);
-                    Log.Info($"  Completed: Filter='{filter.Name}', Option='{option.Name}'");
-
-                    // E: Re-open Options and Clear All Filters for next iteration
-                    bool hasMoreOptions = optionIndex < options.Count;
-                    bool hasMoreFilters = filterIndex < allFilters.Count;
-
-                    if (hasMoreOptions || hasMoreFilters)
-                    {
-                        Log.Info($"      [STEP E] Re-opening Options and clearing filters...");
-                        modifyPage = OpenModifyReportDialog();
-                        modifyPage.ClearAllFilters();
-
-                        // Re-find the filter element for the next iteration
-                        string nextFilterName = hasMoreOptions
-                            ? filter.Name
-                            : (filterIndex < allFilters.Count ? allFilters[filterIndex].Name : filter.Name);
-
-                        Log.Info($"      Re-finding filter '{nextFilterName}' in new window...");
-                        var refreshed = modifyPage.RefindFilter(nextFilterName);
-                        if (refreshed != null)
-                        {
-                            if (hasMoreOptions)
-                                filter.Element = refreshed;
-                            else if (filterIndex < allFilters.Count)
-                                allFilters[filterIndex].Element = refreshed;
-                            Log.Info($"      Successfully re-found filter '{nextFilterName}'");
-                        }
-                        else
-                        {
-                            Log.Info($"      WARNING: Could not re-find filter '{nextFilterName}'");
-                        }
-                    }
-                }
-            }
-
-            Log.Info("\n=== Options and Filters exploration completed ===");
-            Log.Info($"Total combinations tested: {allFilters.Count} filters with their respective options");
         }
 
         /// <summary>
