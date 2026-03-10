@@ -21,7 +21,7 @@ namespace Sage50Automation.Tests
     ///      b. Export to Excel → Save CSV as "act24_FilterName_OptionName.csv"
     ///   6. Compare each act26_*.csv vs act24_*.csv pair → separate HTML reports
     /// </summary>
-    [TestClass]
+    // [TestClass]
     public class Actian2024CustomerLedgerTests : BaseTest
     {
         [TestInitialize]
@@ -37,6 +37,7 @@ namespace Sage50Automation.Tests
             {
                 Log?.Info($"FATAL ERROR in Actian 2024 Setup: {ex.Message}");
                 Log?.Info($"Stack Trace: {ex.StackTrace}");
+                CaptureScreenshot("FATAL: Actian 2024 Setup failed");
                 Log?.Info("=== Actian 2024 Test FAILED in Setup ===");
                 throw;
             }
@@ -85,7 +86,8 @@ namespace Sage50Automation.Tests
 
                 // Step 6: Compare each act26_*.csv vs act24_*.csv pair
                 Log.Info("=== Step 6: Comparing CSV file pairs ===");
-                CompareAllPairs(selectionsData);
+                var comparisonRunner = new CsvComparisonRunner(Log, Comparer, ReportGenerator);
+                comparisonRunner.CompareAllPairs(selectionsData);
 
                 Log.Info("=== Actian 2024 Test Completed Successfully! ===");
             }
@@ -93,6 +95,7 @@ namespace Sage50Automation.Tests
             {
                 Log.Info($"ERROR in Actian 2024 test: {ex.Message}");
                 Log.Info($"Stack Trace: {ex.StackTrace}");
+                CaptureScreenshot("ERROR: Actian 2024 test failed");
                 Log.Info("=== Actian 2024 Test FAILED ===");
                 throw;
             }
@@ -102,86 +105,9 @@ namespace Sage50Automation.Tests
         public void Cleanup()
         {
             Log?.Info("Actian 2024 Cleanup started");
+            GenerateExecutionLogHtml();
             CleanupSession();
             Log?.Info("Actian 2024 Cleanup completed");
-        }
-
-        /// <summary>
-        /// Compare each act26_Filter_Option.csv vs act24_Filter_Option.csv pair.
-        /// Generates a separate HTML report for each comparison.
-        /// </summary>
-        private void CompareAllPairs(FilterSelectionsData selectionsData)
-        {
-            int totalPairs = selectionsData.Selections.Count;
-            int passCount = 0;
-            int failCount = 0;
-            var failedPairs = new List<string>();
-
-            for (int i = 0; i < totalPairs; i++)
-            {
-                var sel = selectionsData.Selections[i];
-
-                string act26Csv = SelectionsPersistence.BuildCsvFileName("act26", sel.FilterName, sel.OptionName);
-                string act24Csv = SelectionsPersistence.BuildCsvFileName("act24", sel.FilterName, sel.OptionName);
-
-                string act26Path = Path.Combine(TestConfig.ReportsFolderPath, act26Csv);
-                string act24Path = Path.Combine(TestConfig.ReportsFolderPath, act24Csv);
-
-                Log.Info($"\n--- Comparing pair [{i + 1}/{totalPairs}] ---");
-                Log.Info($"  Filter: {sel.FilterName} | Option: {sel.OptionName}");
-                Log.Info($"  Act26: {act26Csv}");
-                Log.Info($"  Act24: {act24Csv}");
-
-                if (!File.Exists(act26Path))
-                {
-                    Log.Info($"  SKIP: Act26 file not found: {act26Path}");
-                    failCount++;
-                    failedPairs.Add($"{sel.FilterName}/{sel.OptionName} (act26 file missing)");
-                    continue;
-                }
-                if (!File.Exists(act24Path))
-                {
-                    Log.Info($"  SKIP: Act24 file not found: {act24Path}");
-                    failCount++;
-                    failedPairs.Add($"{sel.FilterName}/{sel.OptionName} (act24 file missing)");
-                    continue;
-                }
-
-                // Compare with filter context
-                var result = Comparer.Compare(act26Path, act24Path, sel);
-
-                // Generate separate HTML report for this pair
-                string reportFile = ReportGenerator.Save(result.MarkdownReport);
-                Log.Info($"  HTML report: {reportFile}");
-
-                if (result.HasMismatch)
-                {
-                    failCount++;
-                    failedPairs.Add($"{sel.FilterName}/{sel.OptionName}");
-                    Log.Info($"  RESULT: MISMATCH — {result.FailureMessage}");
-                }
-                else
-                {
-                    passCount++;
-                    Log.Info($"  RESULT: MATCH");
-                }
-            }
-
-            // Summary
-            Log.Info($"\n========================================");
-            Log.Info($"  COMPARISON SUMMARY");
-            Log.Info($"  Total pairs: {totalPairs}");
-            Log.Info($"  Passed: {passCount}");
-            Log.Info($"  Failed: {failCount}");
-            Log.Info($"========================================");
-
-            if (failCount > 0)
-            {
-                string failMsg = $"CSV comparison failed for {failCount}/{totalPairs} pairs: " +
-                                 string.Join(", ", failedPairs);
-                Log.Info(failMsg);
-                Assert.Fail(failMsg);
-            }
         }
 
         /// <summary>

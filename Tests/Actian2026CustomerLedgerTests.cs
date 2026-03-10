@@ -35,6 +35,7 @@ namespace Sage50Automation.Tests
             {
                 Log?.Info($"FATAL ERROR in Actian 2026 Setup: {ex.Message}");
                 Log?.Info($"Stack Trace: {ex.StackTrace}");
+                CaptureScreenshot("FATAL: Actian 2026 Setup failed");
                 Log?.Info("=== Actian 2026 Test FAILED in Setup ===");
                 throw;
             }
@@ -77,6 +78,7 @@ namespace Sage50Automation.Tests
             {
                 Log.Info($"ERROR in Actian 2026 test: {ex.Message}");
                 Log.Info($"Stack Trace: {ex.StackTrace}");
+                CaptureScreenshot("ERROR: Actian 2026 test failed");
                 Log.Info("=== Actian 2026 Test FAILED ===");
                 throw;
             }
@@ -86,6 +88,7 @@ namespace Sage50Automation.Tests
         public void Cleanup()
         {
             Log?.Info("Actian 2026 Cleanup started");
+            GenerateExecutionLogHtml();
             CleanupSession();
             Log?.Info("Actian 2026 Cleanup completed");
         }
@@ -133,6 +136,9 @@ namespace Sage50Automation.Tests
 
             // Delete old HTML report files from project directory
             DeleteOldHtmlReports();
+
+            // Clean up screenshots from previous runs
+            CleanScreenshots();
         }
 
         /// <summary>
@@ -163,6 +169,21 @@ namespace Sage50Automation.Tests
             else
             {
                 Log.Info("No old HTML reports to delete");
+            }
+
+            // Delete old execution log HTML
+            string execLogPath = Path.Combine(projectDir, TestConfig.ExecutionLogHtmlFileName);
+            if (File.Exists(execLogPath))
+            {
+                try
+                {
+                    File.Delete(execLogPath);
+                    Log.Info($"  Deleted: {TestConfig.ExecutionLogHtmlFileName}");
+                }
+                catch
+                {
+                    Log.Info($"  WARNING: Could not delete {TestConfig.ExecutionLogHtmlFileName}");
+                }
             }
         }
 

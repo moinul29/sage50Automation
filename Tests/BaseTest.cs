@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FlaUI.Core;
+using FlaUI.Core.Capturing;
 using FlaUI.UIA3;
 using Sage50Automation.Config;
 using Sage50Automation.Data;
@@ -68,6 +69,9 @@ namespace Sage50Automation.Tests
         protected CsvComparer Comparer = null!;
         protected HtmlReportGenerator ReportGenerator = null!;
 
+        /// <summary>MSTest context — used to detect test outcome for failure screenshots</summary>
+        public TestContext TestContext { get; set; } = null!;
+
         /// <summary>
         /// Initialize the test session: create logger, launch app, create page objects.
         /// Called by derived class [TestInitialize] methods.
@@ -122,6 +126,76 @@ namespace Sage50Automation.Tests
         protected void CleanupSession()
         {
             MainPage?.CloseApp();
+        }
+
+        // ==================================================
+        //  SCREENSHOT + EXECUTION LOG HELPERS
+        // ==================================================
+
+        /// <summary>
+        /// Capture a screenshot of the primary monitor and log a marker.
+        /// Screenshots are saved to a temp folder and embedded in the execution log HTML.
+        /// </summary>
+        protected void CaptureScreenshot(string context)
+        {
+            try
+            {
+                string screenshotsDir = Path.Combine(Path.GetTempPath(), TestConfig.ScreenshotsTempFolder);
+                Directory.CreateDirectory(screenshotsDir);
+
+                string timestamp = DateTime.Now.ToString("HHmmss_fff");
+                string fileName = $"screenshot_{timestamp}.png";
+                string filePath = Path.Combine(screenshotsDir, fileName);
+
+                using var image = Capture.MainScreen();
+                image.ToFile(filePath);
+
+                Log?.Info($"[SCREENSHOT:{fileName}] {context}");
+            }
+            catch (Exception ex)
+            {
+                Log?.Info($"WARNING: Failed to capture screenshot: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Generate (or regenerate) the executionLog.html from accumulated log content.
+        /// Each call produces the HTML with all log entries up to this point.
+        /// </summary>
+        protected void GenerateExecutionLogHtml()
+        {
+            try
+            {
+                string logContent = Log?.GetAllLogs() ?? "";
+                if (!string.IsNullOrWhiteSpace(logContent))
+                {
+                    var generator = new ExecutionLogHtmlGenerator();
+                    string fileName = generator.SaveToFile(logContent);
+                    Log?.Info($"Execution log HTML generated: {fileName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log?.Info($"WARNING: Failed to generate execution log HTML: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Delete the temporary screenshots folder.
+        /// Called at the start of Act26 test to clean up from previous runs.
+        /// </summary>
+        protected void CleanScreenshots()
+        {
+            try
+            {
+                string screenshotsDir = Path.Combine(Path.GetTempPath(), TestConfig.ScreenshotsTempFolder);
+                if (Directory.Exists(screenshotsDir))
+                {
+                    Directory.Delete(screenshotsDir, true);
+                    Log?.Info("Cleaned screenshots temp folder");
+                }
+            }
+            catch { }
         }
     }
 }

@@ -25,9 +25,9 @@ namespace Sage50Automation.Pages
             FindWindow();
         }
 
-        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-        // â•‘              WINDOW MANAGEMENT                    â•‘
-        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ==================================================
+        //              WINDOW MANAGEMENT
+        // ==================================================
 
         /// <summary>
         /// Find the Modify Report dialog window
@@ -78,13 +78,13 @@ namespace Sage50Automation.Pages
             }
         }
 
-        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-        // â•‘              FILTER DISCOVERY                     â•‘
-        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ==================================================
+        //              FILTER DISCOVERY
+        // ==================================================
 
         /// <summary>
         /// Discover all filter items dynamically from the UI.
-        /// Tries multiple approaches: ListBox â†’ TreeView â†’ DataGrid â†’ Table
+        /// Tries multiple approaches: ListBox -> TreeView -> DataGrid -> Table
         /// </summary>
         public List<FilterInfo> DiscoverFilters()
         {
@@ -188,9 +188,9 @@ namespace Sage50Automation.Pages
             return Window.FindFirstDescendant(cf => cf.ByName(filterName));
         }
 
-        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-        // â•‘              OPTION DISCOVERY & SELECTION         â•‘
-        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ==================================================
+        //              OPTION DISCOVERY & SELECTION
+        // ==================================================
 
         /// <summary>
         /// Discover all options (radio buttons) available for a specific filter
@@ -287,18 +287,17 @@ namespace Sage50Automation.Pages
             }
         }
 
-        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-        // â•‘              RANGE VALUE SELECTION                â•‘
-        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ==================================================
+        //              RANGE VALUE SELECTION
+        // ==================================================
 
         /// <summary>
         /// Discover and select range values (From and To dropdowns).
         /// From pane: m_sde_From or m_autofill_From
         /// To pane: m_sde_To or m_autofill_To
         /// </summary>
-        public RangeValues SelectRangeValues()
+        public void SelectRangeValues()
         {
-            var rangeValues = new RangeValues();
             Log.Info("      Discovering range values (From/To)...");
 
             var (fromPane, toPane) = FindFromToPanes();
@@ -342,13 +341,7 @@ namespace Sage50Automation.Pages
                 Log.Info("        WARNING: To dropdown not found");
             }
 
-            // Extract and display selected values
-            var (fromValue, toValue) = ExtractRangeFieldValues();
-            rangeValues.FromValues.Add(fromValue);
-            rangeValues.ToValues.Add(toValue);
-
             Log.Info("        Range selection completed");
-            return rangeValues;
         }
 
         /// <summary>
@@ -395,94 +388,11 @@ namespace Sage50Automation.Pages
         }
 
         /// <summary>
-        /// Extract the actual text values from From/To input fields
-        /// </summary>
-        private (string fromValue, string toValue) ExtractRangeFieldValues()
-        {
-            string fromValue = "";
-            string toValue = "";
-
-            Log.Info("        Extracting From/To field values...");
-
-            var (fromPane, toPane) = FindFromToPanes();
-
-            fromValue = ExtractPaneValue(fromPane);
-            toValue = ExtractPaneValue(toPane);
-
-            Log.Info($"        ========================================");
-            Log.Info($"        SELECTED FROM VALUE: '{fromValue}'");
-            Log.Info($"        SELECTED TO VALUE: '{toValue}'");
-            Log.Info($"        ========================================");
-
-            return (fromValue, toValue);
-        }
-
-        /// <summary>
-        /// Extract text value from a pane using multiple strategies
-        /// </summary>
-        private string ExtractPaneValue(AutomationElement? pane)
-        {
-            if (pane == null) return "";
-
-            string value = "";
-
-            // Try 1: ValuePattern
-            var vp = pane.Patterns.Value.PatternOrDefault;
-            if (vp != null)
-                try { value = vp.Value.Value ?? ""; } catch { }
-
-            // Try 2: LegacyIAccessible
-            if (string.IsNullOrEmpty(value))
-            {
-                var lp = pane.Patterns.LegacyIAccessible.PatternOrDefault;
-                if (lp != null)
-                    try { value = lp.Value.Value ?? ""; } catch { }
-            }
-
-            // Try 3: Child elements
-            if (string.IsNullOrEmpty(value))
-            {
-                var children = pane.FindAllChildren();
-                foreach (var child in children)
-                {
-                    var cvp = child.Patterns.Value.PatternOrDefault;
-                    if (cvp != null)
-                        try
-                        {
-                            var v = cvp.Value.Value ?? "";
-                            if (!string.IsNullOrEmpty(v)) { value = v; break; }
-                        }
-                        catch { }
-
-                    if (string.IsNullOrEmpty(value))
-                    {
-                        var clp = child.Patterns.LegacyIAccessible.PatternOrDefault;
-                        if (clp != null)
-                            try
-                            {
-                                var v = clp.Value.Value ?? "";
-                                if (!string.IsNullOrEmpty(v)) { value = v; break; }
-                            }
-                            catch { }
-                    }
-
-                    if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(child.Name))
-                    {
-                        value = child.Name;
-                        break;
-                    }
-                }
-            }
-
-            // Try 4: Pane name
-            if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(pane.Name))
-                value = pane.Name;
-
-            return value;
-        }
-
-        /// <summary>
-        /// Extract range values from the "Set To Row 0" button text.
+        /// Extract range values from the UI after SelectRangeValues() has set them.
+        /// Uses multiple strategies:
+        ///   1. Find "Set To Row 0" element and read its Value/LegacyIAccessible/children
+        ///   2. Scan all descendants for any element name matching "Range ... - ..."
+        ///   3. Read From/To pane text values directly
         /// Parses text like "Range ALDRED - ARCHER" to extract from/to values.
         /// </summary>
         public (string from, string to) ExtractRangeFromSetToRow()
@@ -491,31 +401,65 @@ namespace Sage50Automation.Pages
 
             try
             {
-                var setToRow = Window.FindFirstDescendant(cf => cf.ByName("Set To Row 0"));
+                Log.Info("      Extracting range values...");
+                string rangeText = "";
 
+                // Strategy 1: Find "Set To Row 0" and read its properties
+                var setToRow = Window.FindFirstDescendant(cf => cf.ByName("Set To Row 0"));
                 if (setToRow != null)
                 {
-                    string text = setToRow.Name ?? "";
-                    Log.Info($"      Set To Row text: '{text}'");
+                    rangeText = TryReadRangeText(setToRow);
+                    Log.Info($"      Set To Row 0 found, text='{rangeText}'");
+                }
 
-                    // Parse "Range ALDRED - ARCHER" format
-                    if (text.StartsWith("Range ", StringComparison.OrdinalIgnoreCase))
+                // Strategy 2: Search all descendants for element name starting with "Range "
+                if (!IsValidRangeText(rangeText))
+                {
+                    Log.Info("      Scanning all elements for range text...");
+                    var allElements = Window.FindAllDescendants();
+                    foreach (var elem in allElements)
                     {
-                        string rangeText = text.Substring(6).Trim();
-                        var parts = rangeText.Split(" - ", 2, StringSplitOptions.TrimEntries);
-                        if (parts.Length == 2)
+                        string name = elem.Name ?? "";
+                        if (IsValidRangeText(name))
                         {
-                            from = parts[0];
-                            to = parts[1];
+                            rangeText = name;
+                            Log.Info($"      Found range in element name: '{rangeText}'");
+                            break;
                         }
                     }
+                }
 
-                    Log.Info($"      Extracted range: From='{from}', To='{to}'");
-                }
-                else
+                // Strategy 3: Read From/To pane values directly
+                if (!IsValidRangeText(rangeText))
                 {
-                    Log.Info("      WARNING: Set To Row button not found");
+                    Log.Info("      Trying From/To pane values...");
+                    var (fromPane, toPane) = FindFromToPanes();
+                    string fromVal = ReadPaneText(fromPane);
+                    string toVal = ReadPaneText(toPane);
+
+                    if (!string.IsNullOrEmpty(fromVal) || !string.IsNullOrEmpty(toVal))
+                    {
+                        from = fromVal;
+                        to = toVal;
+                        Log.Info($"      From pane='{from}', To pane='{to}'");
+                        Log.Info($"      Extracted range: From='{from}', To='{to}'");
+                        return (from, to);
+                    }
                 }
+
+                // Parse "Range FROM - TO" format
+                if (IsValidRangeText(rangeText))
+                {
+                    string body = rangeText.Substring(rangeText.IndexOf("Range ", StringComparison.OrdinalIgnoreCase) + 6).Trim();
+                    var parts = body.Split(" - ", 2, StringSplitOptions.TrimEntries);
+                    if (parts.Length == 2)
+                    {
+                        from = parts[0];
+                        to = parts[1];
+                    }
+                }
+
+                Log.Info($"      Extracted range: From='{from}', To='{to}'");
             }
             catch (Exception ex)
             {
@@ -525,9 +469,91 @@ namespace Sage50Automation.Pages
             return (from, to);
         }
 
-        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-        // â•‘              MULTI-SELECT VALUES                  â•‘
-        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        /// <summary>
+        /// Check if a string looks like valid range text (contains "Range " and " - ")
+        /// </summary>
+        private static bool IsValidRangeText(string text)
+        {
+            return !string.IsNullOrEmpty(text)
+                && text.Contains("Range ", StringComparison.OrdinalIgnoreCase)
+                && text.Contains(" - ");
+        }
+
+        /// <summary>
+        /// Try to read range text from an element using Name, Value, LegacyIAccessible, and children
+        /// </summary>
+        private string TryReadRangeText(AutomationElement element)
+        {
+            // Try Name
+            string text = element.Name ?? "";
+            if (IsValidRangeText(text)) return text;
+
+            // Try Value pattern
+            var vp = element.Patterns.Value.PatternOrDefault;
+            if (vp != null)
+                try { text = vp.Value.Value ?? ""; if (IsValidRangeText(text)) return text; } catch { }
+
+            // Try LegacyIAccessible
+            var lp = element.Patterns.LegacyIAccessible.PatternOrDefault;
+            if (lp != null)
+            {
+                try { text = lp.Value.Value ?? ""; if (IsValidRangeText(text)) return text; } catch { }
+                try { text = lp.Description.Value ?? ""; if (IsValidRangeText(text)) return text; } catch { }
+            }
+
+            // Try children
+            var children = element.FindAllDescendants();
+            foreach (var child in children)
+            {
+                string childName = child.Name ?? "";
+                if (IsValidRangeText(childName)) return childName;
+
+                var cvp = child.Patterns.Value.PatternOrDefault;
+                if (cvp != null)
+                    try { text = cvp.Value.Value ?? ""; if (IsValidRangeText(text)) return text; } catch { }
+            }
+
+            return "";
+        }
+
+        /// <summary>
+        /// Read text value from a From/To pane (used as fallback in range extraction)
+        /// </summary>
+        private string ReadPaneText(AutomationElement? pane)
+        {
+            if (pane == null) return "";
+
+            // Value pattern
+            var vp = pane.Patterns.Value.PatternOrDefault;
+            if (vp != null)
+                try { var v = vp.Value.Value ?? ""; if (!string.IsNullOrEmpty(v)) return v; } catch { }
+
+            // LegacyIAccessible
+            var lp = pane.Patterns.LegacyIAccessible.PatternOrDefault;
+            if (lp != null)
+                try { var v = lp.Value.Value ?? ""; if (!string.IsNullOrEmpty(v)) return v; } catch { }
+
+            // Children
+            foreach (var child in pane.FindAllChildren())
+            {
+                var cvp = child.Patterns.Value.PatternOrDefault;
+                if (cvp != null)
+                    try { var v = cvp.Value.Value ?? ""; if (!string.IsNullOrEmpty(v)) return v; } catch { }
+
+                var clp = child.Patterns.LegacyIAccessible.PatternOrDefault;
+                if (clp != null)
+                    try { var v = clp.Value.Value ?? ""; if (!string.IsNullOrEmpty(v)) return v; } catch { }
+
+                if (!string.IsNullOrEmpty(child.Name))
+                    return child.Name;
+            }
+
+            return pane.Name ?? "";
+        }
+
+        // ==================================================
+        //              MULTI-SELECT VALUES
+        // ==================================================
 
         /// <summary>
         /// Discover and select multiple values (for "One or More" option).
@@ -710,9 +736,9 @@ namespace Sage50Automation.Pages
             return "";
         }
 
-        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-        // â•‘              DIALOG BUTTONS                       â•‘
-        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ==================================================
+        //              DIALOG BUTTONS
+        // ==================================================
 
         /// <summary>
         /// Click the OK button to apply the current filter selection
@@ -744,9 +770,9 @@ namespace Sage50Automation.Pages
             }
         }
 
-        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-        // â•‘         SELECT SPECIFIC VALUES (for replay)         â•‘
-        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ==================================================
+        //              SELECT SPECIFIC VALUES (for replay)
+        // ==================================================
 
         /// <summary>
         /// Select specific values by name (for replaying OneOrMore selections from Act26).
@@ -792,9 +818,9 @@ namespace Sage50Automation.Pages
             }
         }
 
-        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-        // â•‘              FILTER RESET                         â•‘
-        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ==================================================
+        //              FILTER RESET
+        // ==================================================
 
         /// <summary>
         /// Click "Clear All Filters" to reset before next iteration

@@ -86,9 +86,6 @@ namespace Sage50Automation.Utilities
             // Row-by-row comparison
             BuildRowComparison(log, file1Lines, file2Lines, result);
 
-            // Execution logs section
-            BuildExecutionLogsSection(log);
-
             // Comparison summary section
             BuildSummarySection(log, file1Lines, file2Lines, result);
 
@@ -261,41 +258,6 @@ namespace Sage50Automation.Utilities
 
             if (result.MismatchCount > 0)
                 result.FailureMessage = $"CSV files do not match! Found {result.MismatchCount} line(s) with differences.";
-        }
-
-        private void BuildExecutionLogsSection(System.Text.StringBuilder log)
-        {
-            log.AppendLine("---");
-            log.AppendLine();
-            log.AppendLine("## Execution Logs");
-            log.AppendLine();
-
-            string allLogs = _log.GetAllLogs();
-
-            // Split into Actian 2026 and 2024 sections
-            string[] sections = allLogs.Split(
-                new[] { "=== Starting Actian 2024 Test ===" },
-                StringSplitOptions.None);
-
-            if (sections.Length >= 1 && !string.IsNullOrWhiteSpace(sections[0]))
-            {
-                log.AppendLine("### Actian 2026 Test Execution");
-                log.AppendLine();
-                log.AppendLine("```");
-                log.AppendLine(sections[0].TrimEnd());
-                log.AppendLine("```");
-                log.AppendLine();
-            }
-
-            if (sections.Length >= 2 && !string.IsNullOrWhiteSpace(sections[1]))
-            {
-                log.AppendLine("### Actian 2024 Test Execution");
-                log.AppendLine();
-                log.AppendLine("```");
-                log.AppendLine("=== Starting Actian 2024 Test ===" + sections[1].TrimEnd());
-                log.AppendLine("```");
-                log.AppendLine();
-            }
         }
 
         private void BuildSummarySection(System.Text.StringBuilder log, string[] file1Lines,

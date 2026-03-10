@@ -14,6 +14,12 @@
     <PackageReference Include="FlaUI.UIA3" Version="4.0.0" />
   </ItemGroup>
 
+  <!-- Exclude the TestLauncher WinForms project files -->
+  <ItemGroup>
+    <Compile Remove="TestLauncher\**" />
+    <None Remove="TestLauncher\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>

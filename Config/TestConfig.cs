@@ -61,5 +61,11 @@ namespace Sage50Automation.Config
 
         /// <summary>JSON file name for sharing filter selections between Act26 and Act24</summary>
         public static readonly string SelectionsFileName = "filter_selections.json";
+
+        /// <summary>File name for the execution log HTML report</summary>
+        public static readonly string ExecutionLogHtmlFileName = "executionLog.html";
+
+        /// <summary>Temp folder name for failure screenshots (stored in %TEMP%)</summary>
+        public static readonly string ScreenshotsTempFolder = "sage50_screenshots";
     }
 }

@@ -1,0 +1,69 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug: Actian2026 Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/WinAppDriverTests.csproj",
+                "--filter",
+                "FullyQualifiedName~Actian2026",
+                "--no-build",
+                "--logger",
+                "console;verbosity=detailed"
+            ],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Debug: Actian2024 Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/WinAppDriverTests.csproj",
+                "--filter",
+                "FullyQualifiedName~Actian2024",
+                "--no-build",
+                "--logger",
+                "console;verbosity=detailed"
+            ],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Debug: All Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/WinAppDriverTests.csproj",
+                "--no-build",
+                "--logger",
+                "console;verbosity=detailed"
+            ],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Attach to Test Process",
+            "type": "coreclr",
+            "request": "attach",
+            "processName": "testhost"
+        }
+    ]
+}
