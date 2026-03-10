@@ -58,6 +58,62 @@ namespace Sage50Automation.Models
         public bool IsCheckBox { get; set; } = false;
     }
 
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  PERSISTENCE MODELS — saved to JSON for Act24 to replay    ║
+    // ╚══════════════════════════════════════════════════════════════╝
+
+    /// <summary>
+    /// Records what was selected for ONE filter+option combination.
+    /// Serialized to JSON so Act24 can replay the exact same selections.
+    /// 
+    /// Example:
+    ///   FilterName = "Customer ID"
+    ///   OptionName = "Range"
+    ///   OptionType = Range
+    ///   CsvFileName = "act26_CustomerID_Range.csv"
+    ///   RangeFrom = "ALDRED"
+    ///   RangeTo = "BENSON"
+    /// </summary>
+    public class FilterSelection
+    {
+        /// <summary>Filter name (e.g., "Customer ID")</summary>
+        public string FilterName { get; set; } = "";
+
+        /// <summary>Option name (e.g., "All", "Range", "One or More")</summary>
+        public string OptionName { get; set; } = "";
+
+        /// <summary>Option type for replay logic</summary>
+        public OptionType OptionType { get; set; } = OptionType.All;
+
+        /// <summary>CSV file name generated for this combination</summary>
+        public string CsvFileName { get; set; } = "";
+
+        /// <summary>From value for Range selections</summary>
+        public string RangeFrom { get; set; } = "";
+
+        /// <summary>To value for Range selections</summary>
+        public string RangeTo { get; set; } = "";
+
+        /// <summary>Selected values for OneOrMore selections</summary>
+        public List<string> SelectedValues { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Container for all filter selections from one test run.
+    /// Saved as JSON file to share between Act26 and Act24 runs.
+    /// </summary>
+    public class FilterSelectionsData
+    {
+        /// <summary>All filter+option combinations explored</summary>
+        public List<FilterSelection> Selections { get; set; } = new();
+
+        /// <summary>All discovered filter names (in order)</summary>
+        public List<string> FilterNames { get; set; } = new();
+
+        /// <summary>Map of filter name → list of option names (in order)</summary>
+        public Dictionary<string, List<string>> FilterOptionsMap { get; set; } = new();
+    }
+
     /// <summary>
     /// Holds the result of a CSV file comparison
     /// </summary>
@@ -70,6 +126,12 @@ namespace Sage50Automation.Models
         public List<int> EmptyRowNumbers { get; set; } = new();
         public int File1RowCount { get; set; }
         public int File2RowCount { get; set; }
+
+        /// <summary>Filter context info for the comparison report</summary>
+        public string FilterName { get; set; } = "";
+        public string OptionName { get; set; } = "";
+        public string OptionTypeName { get; set; } = "";
+        public string SelectedValuesDescription { get; set; } = "";
 
         /// <summary>Markdown-formatted detailed report content</summary>
         public string MarkdownReport { get; set; } = "";

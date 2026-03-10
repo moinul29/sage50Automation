@@ -26,7 +26,31 @@ namespace Sage50Automation.Utilities
         /// </summary>
         public ComparisonResult Compare(string file1Path, string file2Path)
         {
+            return Compare(file1Path, file2Path, filterSelection: null);
+        }
+
+        /// <summary>
+        /// Compare two CSV files with filter context info (filter name, option, values).
+        /// Generates a detailed comparison result with markdown-formatted report content.
+        /// </summary>
+        public ComparisonResult Compare(string file1Path, string file2Path, FilterSelection? filterSelection)
+        {
             var result = new ComparisonResult();
+
+            // Set filter context on result if available
+            if (filterSelection != null)
+            {
+                result.FilterName = filterSelection.FilterName;
+                result.OptionName = filterSelection.OptionName;
+                result.OptionTypeName = filterSelection.OptionType.ToString();
+
+                if (filterSelection.OptionType == OptionType.Range)
+                    result.SelectedValuesDescription = $"From: {filterSelection.RangeFrom}, To: {filterSelection.RangeTo}";
+                else if (filterSelection.OptionType == OptionType.OneOrMore && filterSelection.SelectedValues.Count > 0)
+                    result.SelectedValuesDescription = string.Join(", ", filterSelection.SelectedValues);
+                else
+                    result.SelectedValuesDescription = "(All)";
+            }
 
             // Read both CSV files
             string[] file1Lines = File.ReadAllLines(file1Path);
@@ -39,7 +63,7 @@ namespace Sage50Automation.Utilities
 
             // ===== Build Markdown Report =====
             var log = new System.Text.StringBuilder();
-            BuildReportHeader(log, file1Path, file2Path, file1Lines, file2Lines);
+            BuildReportHeader(log, file1Path, file2Path, file1Lines, file2Lines, filterSelection);
             BuildEmptyRowsSection(log, file1Lines, file2Lines, result);
 
             // Row count check (early exit if different)
@@ -136,11 +160,33 @@ namespace Sage50Automation.Utilities
         }
 
         private void BuildReportHeader(System.Text.StringBuilder log, string file1Path, string file2Path,
-            string[] file1Lines, string[] file2Lines)
+            string[] file1Lines, string[] file2Lines, FilterSelection? filterSelection = null)
         {
             log.AppendLine("# Report Comparison Analysis Result");
             log.AppendLine($"**Date:** {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             log.AppendLine();
+
+            // Filter context section (if available)
+            if (filterSelection != null)
+            {
+                log.AppendLine("## Filter Context");
+                log.AppendLine($"- **Filter:** {filterSelection.FilterName}");
+                log.AppendLine($"- **Option:** {filterSelection.OptionName}");
+                log.AppendLine($"- **Option Type:** {filterSelection.OptionType}");
+
+                if (filterSelection.OptionType == OptionType.Range)
+                {
+                    log.AppendLine($"- **Range From:** {filterSelection.RangeFrom}");
+                    log.AppendLine($"- **Range To:** {filterSelection.RangeTo}");
+                }
+                else if (filterSelection.OptionType == OptionType.OneOrMore && filterSelection.SelectedValues.Count > 0)
+                {
+                    log.AppendLine($"- **Selected Values:** {string.Join(", ", filterSelection.SelectedValues)}");
+                }
+
+                log.AppendLine();
+            }
+
             log.AppendLine("## Files Compared");
             log.AppendLine($"- **File 1:** `{file1Path}`");
             log.AppendLine($"- **File 2:** `{file2Path}`");

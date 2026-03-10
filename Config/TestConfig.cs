@@ -58,5 +58,8 @@ namespace Sage50Automation.Config
 
         /// <summary>Max wait time for Excel export progress (seconds)</summary>
         public static readonly int ExportMaxWaitSeconds = 120;
+
+        /// <summary>JSON file name for sharing filter selections between Act26 and Act24</summary>
+        public static readonly string SelectionsFileName = "filter_selections.json";
     }
 }

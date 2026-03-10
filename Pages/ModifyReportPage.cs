@@ -1,4 +1,4 @@
-using FlaUI.Core;
+﻿using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.UIA3;
 using Sage50Automation.Config;
@@ -25,9 +25,9 @@ namespace Sage50Automation.Pages
             FindWindow();
         }
 
-        // ╔══════════════════════════════════════════════════╗
-        // ║              WINDOW MANAGEMENT                    ║
-        // ╚══════════════════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘              WINDOW MANAGEMENT                    â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>
         /// Find the Modify Report dialog window
@@ -66,7 +66,7 @@ namespace Sage50Automation.Pages
         /// <summary>
         /// Get the window element (asserts it exists)
         /// </summary>
-        private AutomationElement Window
+        public AutomationElement Window
         {
             get
             {
@@ -78,13 +78,13 @@ namespace Sage50Automation.Pages
             }
         }
 
-        // ╔══════════════════════════════════════════════════╗
-        // ║              FILTER DISCOVERY                     ║
-        // ╚══════════════════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘              FILTER DISCOVERY                     â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>
         /// Discover all filter items dynamically from the UI.
-        /// Tries multiple approaches: ListBox → TreeView → DataGrid → Table
+        /// Tries multiple approaches: ListBox â†’ TreeView â†’ DataGrid â†’ Table
         /// </summary>
         public List<FilterInfo> DiscoverFilters()
         {
@@ -188,9 +188,9 @@ namespace Sage50Automation.Pages
             return Window.FindFirstDescendant(cf => cf.ByName(filterName));
         }
 
-        // ╔══════════════════════════════════════════════════╗
-        // ║              OPTION DISCOVERY & SELECTION         ║
-        // ╚══════════════════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘              OPTION DISCOVERY & SELECTION         â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>
         /// Discover all options (radio buttons) available for a specific filter
@@ -287,9 +287,9 @@ namespace Sage50Automation.Pages
             }
         }
 
-        // ╔══════════════════════════════════════════════════╗
-        // ║              RANGE VALUE SELECTION                ║
-        // ╚══════════════════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘              RANGE VALUE SELECTION                â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>
         /// Discover and select range values (From and To dropdowns).
@@ -481,9 +481,53 @@ namespace Sage50Automation.Pages
             return value;
         }
 
-        // ╔══════════════════════════════════════════════════╗
-        // ║              MULTI-SELECT VALUES                  ║
-        // ╚══════════════════════════════════════════════════╝
+        /// <summary>
+        /// Extract range values from the "Set To Row 0" button text.
+        /// Parses text like "Range ALDRED - ARCHER" to extract from/to values.
+        /// </summary>
+        public (string from, string to) ExtractRangeFromSetToRow()
+        {
+            string from = "", to = "";
+
+            try
+            {
+                var setToRow = Window.FindFirstDescendant(cf => cf.ByName("Set To Row 0"));
+
+                if (setToRow != null)
+                {
+                    string text = setToRow.Name ?? "";
+                    Log.Info($"      Set To Row text: '{text}'");
+
+                    // Parse "Range ALDRED - ARCHER" format
+                    if (text.StartsWith("Range ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string rangeText = text.Substring(6).Trim();
+                        var parts = rangeText.Split(" - ", 2, StringSplitOptions.TrimEntries);
+                        if (parts.Length == 2)
+                        {
+                            from = parts[0];
+                            to = parts[1];
+                        }
+                    }
+
+                    Log.Info($"      Extracted range: From='{from}', To='{to}'");
+                }
+                else
+                {
+                    Log.Info("      WARNING: Set To Row button not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Info($"      WARNING: ExtractRangeFromSetToRow failed: {ex.Message}");
+            }
+
+            return (from, to);
+        }
+
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘              MULTI-SELECT VALUES                  â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>
         /// Discover and select multiple values (for "One or More" option).
@@ -666,9 +710,9 @@ namespace Sage50Automation.Pages
             return "";
         }
 
-        // ╔══════════════════════════════════════════════════╗
-        // ║              DIALOG BUTTONS                       ║
-        // ╚══════════════════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘              DIALOG BUTTONS                       â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>
         /// Click the OK button to apply the current filter selection
@@ -700,154 +744,57 @@ namespace Sage50Automation.Pages
             }
         }
 
-        // ╔══════════════════════════════════════════════════╗
-        // ║         FILTER EXPLORATION (full orchestration)     ║
-        // ╚══════════════════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘         SELECT SPECIFIC VALUES (for replay)         â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>
-        /// Explore ALL filters and their options dynamically.
-        /// 
-        /// For each filter:
-        ///   1. Discover available options (All, Range, One or More)
-        ///   2. Select each option and fill in values
-        ///   3. Click OK to apply
-        ///   4. Re-open and clear for next combination
-        /// 
-        /// Usage from test file:
-        ///   var viewerPage = CreateViewerPage(report.ReportWindowTitle);
-        ///   var modifyPage = viewerPage.OpenModifyReportDialog();
-        ///   modifyPage.ExploreAllFiltersAndOptions(viewerPage.OpenModifyReportDialog);
+        /// Select specific values by name (for replaying OneOrMore selections from Act26).
+        /// Finds checkboxes matching the provided names and checks them.
         /// </summary>
-        public void ExploreAllFiltersAndOptions(Func<ModifyReportPage> reopenDialog)
+        public void SelectSpecificValues(List<string> valueNames)
         {
-            Log.Info("=== Starting Options and Filters exploration ===");
-
-            // Use 'this' as the current ModifyReportPage instance
-            var modifyPage = this;
-
-            // STEP 1: Discover all filters
-            Log.Info("\n=== STEP 1: Discovering all filters from UI ===");
-            var allFilters = modifyPage.DiscoverFilters();
-            Log.Info($"Total filters discovered: {allFilters.Count}");
-
-            Log.Info("\n--- Discovered Filters List ---");
-            for (int i = 0; i < allFilters.Count; i++)
-                Log.Info($"  Filter [{i + 1}]: {allFilters[i].Name}");
-
-            // STEP 2: Discover options for each filter
-            Log.Info("\n=== STEP 2: Discovering options for each filter ===");
-            var filterOptionsMap = new Dictionary<string, List<OptionInfo>>();
-
-            foreach (var filter in allFilters)
+            if (valueNames.Count == 0)
             {
-                Log.Info($"\n--- Discovering options for filter: {filter.Name} ---");
-                filter.Element.Click();
-                Thread.Sleep(TestConfig.ShortWaitMs);
-
-                var options = modifyPage.DiscoverFilterOptions(filter);
-                filterOptionsMap[filter.Name] = options;
-
-                Log.Info($"  Options discovered for '{filter.Name}':");
-                foreach (var opt in options)
-                    Log.Info($"    - {opt.Name} (Type: {opt.OptionType})");
+                Log.Info("      No specific values to select");
+                return;
             }
 
-            // STEP 3: Test all filter-option combinations
-            Log.Info("\n=== STEP 3: Testing all filters, options and values ===");
+            Log.Info($"      Selecting {valueNames.Count} specific values...");
 
-            int filterIndex = 0;
-            foreach (var filter in allFilters)
+            var selectableValues = DiscoverSelectableValues();
+
+            foreach (var targetName in valueNames)
             {
-                filterIndex++;
-                Log.Info($"\n========================================");
-                Log.Info($"FILTER [{filterIndex}/{allFilters.Count}]: {filter.Name}");
-                Log.Info($"========================================");
+                var match = selectableValues.FirstOrDefault(v =>
+                    v.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
 
-                var options = filterOptionsMap[filter.Name];
-                int optionIndex = 0;
-
-                foreach (var option in options)
+                if (match != null)
                 {
-                    optionIndex++;
-                    Log.Info($"\n  --- Option [{optionIndex}/{options.Count}]: {option.Name} ---");
-
-                    // A: Click on filter to show its options
-                    Log.Info($"      Clicking on filter '{filter.Name}' to show options...");
-                    var freshFilter = modifyPage.RefindFilter(filter.Name);
-                    if (freshFilter != null)
+                    try
                     {
-                        freshFilter.Click();
-                        Thread.Sleep(TestConfig.ShortWaitMs);
-                    }
-                    else
-                    {
-                        Log.Info($"      WARNING: Could not find filter '{filter.Name}', trying stored element...");
-                        try { filter.Element.Click(); Thread.Sleep(TestConfig.ShortWaitMs); } catch { }
-                    }
-
-                    // B: Select the option (radio button)
-                    modifyPage.SelectOption(option);
-                    Thread.Sleep(TestConfig.ShortWaitMs);
-
-                    // C: Handle value selection based on option type
-                    switch (option.OptionType)
-                    {
-                        case OptionType.All:
-                            Log.Info($"      'All' option selected - no additional values needed");
-                            break;
-                        case OptionType.Range:
-                            modifyPage.SelectRangeValues();
-                            break;
-                        case OptionType.OneOrMore:
-                            modifyPage.SelectMultipleValues(TestConfig.MaxFilterValuesToSelect);
-                            break;
-                    }
-
-                    // D: Click OK to apply
-                    modifyPage.ClickOK();
-                    Thread.Sleep(1000);
-                    Log.Info($"  Completed: Filter='{filter.Name}', Option='{option.Name}'");
-
-                    // E: Re-open Options and Clear All Filters for next iteration
-                    bool hasMoreOptions = optionIndex < options.Count;
-                    bool hasMoreFilters = filterIndex < allFilters.Count;
-
-                    if (hasMoreOptions || hasMoreFilters)
-                    {
-                        Log.Info($"      [STEP E] Re-opening Options and clearing filters...");
-                        modifyPage = reopenDialog();
-                        modifyPage.ClearAllFilters();
-
-                        // Re-find the filter element for the next iteration
-                        string nextFilterName = hasMoreOptions
-                            ? filter.Name
-                            : (filterIndex < allFilters.Count ? allFilters[filterIndex].Name : filter.Name);
-
-                        Log.Info($"      Re-finding filter '{nextFilterName}' in new window...");
-                        var refreshed = modifyPage.RefindFilter(nextFilterName);
-                        if (refreshed != null)
-                        {
-                            if (hasMoreOptions)
-                                filter.Element = refreshed;
-                            else if (filterIndex < allFilters.Count)
-                                allFilters[filterIndex].Element = refreshed;
-                            Log.Info($"      Successfully re-found filter '{nextFilterName}'");
-                        }
+                        if (match.IsCheckBox)
+                            match.Element.AsCheckBox().IsChecked = true;
                         else
-                        {
-                            Log.Info($"      WARNING: Could not re-find filter '{nextFilterName}'");
-                        }
+                            match.Element.Click();
+
+                        Log.Info($"        Selected: '{targetName}'");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Info($"        WARNING: Could not select '{targetName}': {ex.Message}");
                     }
                 }
+                else
+                {
+                    Log.Info($"        WARNING: Value '{targetName}' not found in list");
+                }
             }
-
-            Log.Info("\n=== Options and Filters exploration completed ===");
-            Log.Info($"Total combinations tested: {allFilters.Count} filters with their respective options");
         }
 
-        // ╔══════════════════════════════════════════════════╗
-        // ║              FILTER RESET                         ║
-        // ╚══════════════════════════════════════════════════╝
+        // â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+        // â•‘              FILTER RESET                         â•‘
+        // â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
         /// <summary>
         /// Click "Clear All Filters" to reset before next iteration
