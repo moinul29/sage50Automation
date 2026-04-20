@@ -21,7 +21,7 @@ namespace Sage50Automation.Tests
     ///      b. Export to Excel → Save CSV as "act24_FilterName_OptionName.csv"
     ///   6. Compare each act26_*.csv vs act24_*.csv pair → separate HTML reports
     /// </summary>
-    // [TestClass]
+    [TestClass]
     public class Actian2024CustomerLedgerTests : BaseTest
     {
         [TestInitialize]

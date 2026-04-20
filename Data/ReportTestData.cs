@@ -38,7 +38,7 @@ namespace Sage50Automation.Data
     public static class MenuCategory
     {
         public const string AccountsReceivable = "Accounts Receivable...";
-        public const string AccountPayable = "Account Payable...";
+        public const string AccountPayable = "Accounts Payable...";
         public const string GeneralLedger = "General Ledger...";
         public const string FinancialStatements = "Financial Statements...";
         public const string Inventory = "Inventory...";
@@ -108,12 +108,12 @@ namespace Sage50Automation.Data
 
         // ── Account Payable Reports ──
 
-        // public static ReportInfo VendorLedger => new()
-        // {
-        //     ReportName = "Vendor Ledger",
-        //     ReportWindowTitle = "Vendor Ledgers",
-        //     ReportListIndex = 2   // Update with correct index
-        // };
+        public static ReportInfo VendorLedger => new()
+        {
+            ReportName = "Vendor Ledger",
+            ReportWindowTitle = "Vendor Ledgers",
+            ReportListIndex = 11   // Update with correct index
+        };
 
         // ── General Ledger Reports ──
 
