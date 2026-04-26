@@ -47,11 +47,9 @@ namespace Sage50Automation.Tests
         [Priority(2)]
         public void Test_2_Actian2024_CustomerLedger()
         {
-            // ══════════════════════════════════════════════════════════
-            //  TEST DATA — Change these 2 lines to test a different report
-            // ══════════════════════════════════════════════════════════
-            string menuCategory = MenuCategory.AccountsReceivable;
-            ReportInfo report = ReportList.CustomerLedger;
+            // Test data is sourced from Actian2026CustomerLedgerTests so both tests stay in sync.
+            string reportGroup = Actian2026CustomerLedgerTests.ReportGroupName;
+            ReportInfo report = Actian2026CustomerLedgerTests.Report;
 
             try
             {
@@ -71,16 +69,19 @@ namespace Sage50Automation.Tests
                 // Step 3: Open company
                 MainPage.OpenCompany();
 
-                // Step 4: Navigate — menu category + report (separate calls)
+                // Step 4: Navigate — report group + report (separate calls)
                 MenuPage.OpenReportsMenu();
-                MenuPage.ClickMenuCategory(menuCategory);
+                MenuPage.ClickReportGroup(reportGroup);
                 MenuPage.SelectReport(report);
 
                 // Step 5: Replay all filter selections + Export each as act24_Filter_Option.csv
                 var viewerPage = CreateViewerPage(report.ReportWindowTitle);
-                var modifyPage = viewerPage.OpenModifyReportDialog();
 
-                ReplayAndExportAll("act24", selectionsData, viewerPage, modifyPage);
+                // Capture DEFAULT (unmodified) report data first
+                viewerPage.DefaultDataExport("act24");
+
+                var modifyPage = viewerPage.OpenModifyReportDialog();
+                viewerPage.ReplayAndExploreAllFiltersAndExportAct24("act24", selectionsData, modifyPage);
 
                 Thread.Sleep(2000);
 
@@ -110,96 +111,5 @@ namespace Sage50Automation.Tests
             Log?.Info("Actian 2024 Cleanup completed");
         }
 
-        /// <summary>
-        /// Replay the filter selections from Act26 JSON, and for each combination:
-        ///   1. Select same filter → option → values → OK
-        ///   2. Export to Excel → Save CSV as "act24_FilterName_OptionName.csv"
-        ///   3. Re-open options → next combination
-        /// </summary>
-        private void ReplayAndExportAll(
-            string filePrefix,
-            FilterSelectionsData selectionsData,
-            ReportViewerPage viewerPage,
-            ModifyReportPage modifyPage)
-        {
-            Log.Info($"=== Starting REPLAY + EXPORT ALL (prefix: {filePrefix}) ===");
-            Log.Info($"Replaying {selectionsData.Selections.Count} combinations from Act26...");
-
-            for (int i = 0; i < selectionsData.Selections.Count; i++)
-            {
-                var sel = selectionsData.Selections[i];
-                Log.Info($"\n======================================================");
-                Log.Info($"  REPLAY [{i + 1}/{selectionsData.Selections.Count}]");
-                Log.Info($"  FILTER: {sel.FilterName}");
-                Log.Info($"  OPTION: {sel.OptionName} ({sel.OptionType})");
-                Log.Info($"======================================================");
-
-                // A: Click on filter
-                var freshFilter = modifyPage.RefindFilter(sel.FilterName);
-                if (freshFilter != null)
-                {
-                    freshFilter.Click();
-                    Thread.Sleep(TestConfig.ShortWaitMs);
-                }
-                else
-                {
-                    Log.Info($"      WARNING: Could not find filter '{sel.FilterName}'");
-                }
-
-                // B: Select the option
-                var optionElement = modifyPage.Window.FindFirstDescendant(cf => cf.ByName(sel.OptionName));
-                if (optionElement != null)
-                {
-                    optionElement.Click();
-                    Thread.Sleep(TestConfig.ShortWaitMs);
-                    Log.Info($"      Selected option: {sel.OptionName}");
-                }
-                else
-                {
-                    Log.Info($"      WARNING: Could not find option '{sel.OptionName}'");
-                }
-
-                // C: Replay value selection (no values needed for 'All')
-                switch (sel.OptionType)
-                {
-                    case OptionType.All:
-                        Log.Info($"      'All' option - no values to configure");
-                        break;
-                    case OptionType.Range:
-                        modifyPage.SelectRangeValues();
-                        break;
-                    case OptionType.OneOrMore:
-                        modifyPage.SelectSpecificValues(sel.SelectedValues);
-                        break;
-                }
-
-                // D: Click OK
-                modifyPage.ClickOK();
-                Thread.Sleep(1000);
-
-                // E: Export to Excel
-                Log.Info($"      Exporting to Excel...");
-                viewerPage.ExportToExcel();
-
-                // F: Save as CSV with act24 prefix
-                string csvName = SelectionsPersistence.BuildCsvFileName(filePrefix, sel.FilterName, sel.OptionName);
-                Log.Info($"      Saving as CSV: {csvName}");
-                var excelPage = CreateExcelPage();
-                excelPage.SaveAsCSV(csvName);
-                Thread.Sleep(1000);
-
-                Log.Info($"  Completed: {csvName}");
-
-                // G: Re-open options for next combination
-                if (i < selectionsData.Selections.Count - 1)
-                {
-                    Log.Info($"      Re-opening Options for next combination...");
-                    modifyPage = viewerPage.OpenModifyReportDialog();
-                    modifyPage.ClearAllFilters();
-                }
-            }
-
-            Log.Info($"\n=== REPLAY + EXPORT ALL completed ({selectionsData.Selections.Count} files) ===");
-        }
     }
 }

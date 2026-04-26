@@ -15,7 +15,7 @@ namespace Sage50Automation.Pages
     /// │  3 INDEPENDENT METHODS (call each from your test file):           │
     /// │                                                                  │
     /// │  1. OpenReportsMenu()          → Opens "Reports & Forms"        │
-    /// │  2. ClickMenuCategory(string)  → Clicks any menu category       │
+    /// │  2. ClickReportGroup(string)   → Clicks any report group        │
     /// │  3. SelectReport(ReportInfo)   → Selects report from the list   │
     /// │                                                                  │
     /// │  This gives you full control to mix & match:                     │
@@ -26,7 +26,7 @@ namespace Sage50Automation.Pages
     /// 
     /// Usage (each step called independently from your test file):
     ///   MenuPage.OpenReportsMenu();                              // Step 1
-    ///   MenuPage.ClickMenuCategory(MenuCategory.AccountsReceivable);  // Step 2
+    ///   MenuPage.ClickReportGroup(MenuCategory.AccountsReceivable);  // Step 2
     ///   MenuPage.SelectReport(ReportList.CustomerLedger);        // Step 3
     /// </summary>
     public class ReportsMenuPage : BasePage
@@ -40,7 +40,7 @@ namespace Sage50Automation.Pages
 
         /// <summary>
         /// Open the "Reports &amp; Forms" menu from the main menu bar.
-        /// Call this FIRST before ClickMenuCategory.
+        /// Call this FIRST before ClickReportGroup.
         /// </summary>
         public void OpenReportsMenu()
         {
@@ -62,28 +62,28 @@ namespace Sage50Automation.Pages
         }
 
         // ═══════════════════════════════════════════════════════════════
-        //  STEP 2: Click a menu category (Accounts Receivable, etc.)
+        //  STEP 2: Click a report group (Accounts Receivable, etc.)
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Click a menu category from the Reports &amp; Forms dropdown.
+        /// Click a report group from the Reports &amp; Forms dropdown.
         /// 
         /// Example:
-        ///   MenuPage.ClickMenuCategory(MenuCategory.AccountsReceivable);
-        ///   MenuPage.ClickMenuCategory(MenuCategory.AccountPayable);
+        ///   MenuPage.ClickReportGroup(MenuCategory.AccountsReceivable);
+        ///   MenuPage.ClickReportGroup(MenuCategory.AccountPayable);
         /// </summary>
-        public void ClickMenuCategory(string menuCategory)
+        public void ClickReportGroup(string reportGroup)
         {
-            Log.Info($"Clicking menu category: '{menuCategory}'...");
+            Log.Info($"Clicking report group: '{reportGroup}'...");
 
             var companyWindow = Desktop.FindFirstDescendant(cf => cf.ByName(TestConfig.CompanyWindowName));
             Assert.IsNotNull(companyWindow, $"Company window '{TestConfig.CompanyWindowName}' should be found");
 
-            var menuItem = companyWindow.FindFirstDescendant(cf => cf.ByName(menuCategory));
-            Assert.IsNotNull(menuItem, $"'{menuCategory}' menu item should be found");
+            var menuItem = companyWindow.FindFirstDescendant(cf => cf.ByName(reportGroup));
+            Assert.IsNotNull(menuItem, $"'{reportGroup}' menu item should be found");
             Log.Info($"Found: {menuItem.Name}, clicking...");
             menuItem.Click();
-            Log.Info($"Successfully clicked '{menuCategory}'");
+            Log.Info($"Successfully clicked '{reportGroup}'");
             Thread.Sleep(3000);
         }
 

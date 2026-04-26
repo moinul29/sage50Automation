@@ -25,13 +25,13 @@ namespace Sage50Automation.Tests
     /// │                                                                  │
     /// │  Pages/                                                          │
     /// │    SageMainPage ─────── Launch app, open company, close app      │
-    /// │    ReportsMenuPage ──── Navigate: Reports > [Menu] > [Report]   │
+    /// │    ReportsMenuPage ──── Navigate: Reports > [Report Group] > [Report]   │
     /// │    ReportViewerPage ─── Report window: options, export, filters  │
     /// │    ModifyReportPage ─── Filter dialog: discover, select, apply   │
     /// │    ExcelSavePage ────── Excel: save as CSV                       │
     /// │                                                                  │
     /// │  Data/                                                           │
-    /// │    ReportTestData ───── Parameterized: menu, report, index, csv  │
+    /// │    ReportTestData ───── Parameterized: report group, report, index, csv  │
     /// │                                                                  │
     /// │  Config/                                                         │
     /// │    TestConfig ────────── All paths, timeouts, settings           │

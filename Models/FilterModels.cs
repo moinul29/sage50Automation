@@ -59,7 +59,7 @@ namespace Sage50Automation.Models
     }
 
     // ╔══════════════════════════════════════════════════════════════╗
-    // ║  PERSISTENCE MODELS — saved to JSON for Act24 to replay    ║
+    // ║  PERSISTENCE MODELS — saved to JSON for Act24 to replay      ║
     // ╚══════════════════════════════════════════════════════════════╝
 
     /// <summary>
